@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test /getstock API</title>
+</head>
+<body>
+  <h2>Test /getstock API</h2>
+  <form id="stockForm">
+    <label for="startDate">Start Date:</label>
+    <input type="text" id="startDate" name="startDate" value="2025-08-01"><br><br>
+    <label for="endDate">End Date:</label>
+    <input type="text" id="endDate" name="endDate" value="2025-08-24"><br><br>
+    <button type="submit">Send Request</button>
+  </form>
+  <pre id="result"></pre>
+  <script>
+    document.getElementById('stockForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const res = await fetch('http://localhost:8080/getstock', {
+        method: 'GET',
+        headers: {
+          'startDate': startDate,
+          'endDate': endDate
+        }
+      });
+      const text = await res.text();
+      document.getElementById('result').textContent = text;
+    });
+  </script>
+</body>
+</html>

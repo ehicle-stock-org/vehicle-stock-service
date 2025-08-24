@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vehicle-stock-service.fullname" . }}
+  labels:
+    app: {{ include "vehicle-stock-service.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "vehicle-stock-service.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "vehicle-stock-service.name" . }}
+    spec:
+      containers:
+        - name: vehicle-stock-service
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: STRIPE_KEY
+              value: "{{ .Values.stripeKey | default "" }}"
