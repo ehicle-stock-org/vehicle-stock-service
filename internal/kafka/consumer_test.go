@@ -158,3 +158,36 @@ func TestConsumerMongoInsertError(t *testing.T) {
 	mock.Close()
 	assert.True(t, mock.closed)
 }
+
+func TestConsumerReadMessageError(t *testing.T) {
+	mock := &mockKafkaConsumer{err: errors.New("read error")}
+	c := &Consumer{consumer: mock, topic: testTopic}
+	done := make(chan struct{})
+	go func() { c.ConsumeLoop(done) }()
+	close(done)
+	mock.Close()
+	assert.True(t, mock.closed)
+}
+
+func TestConsumerCloseNilConsumer(t *testing.T) {
+	c := &Consumer{consumer: nil, topic: testTopic}
+	c.Close()
+}
+
+func TestConsumerConsumeLoopNilConsumer(t *testing.T) {
+	c := &Consumer{consumer: nil, topic: testTopic}
+	done := make(chan struct{})
+	go func() { c.ConsumeLoop(done) }()
+	close(done)
+	// Should not panic
+}
+
+func TestGetStopChanDefault(t *testing.T) {
+	ch := getStopChan([]chan struct{}{})
+	select {
+	case <-ch:
+		// Should not happen
+	default:
+		// Should block forever
+	}
+}

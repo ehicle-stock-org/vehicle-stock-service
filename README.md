@@ -1,73 +1,112 @@
+
 # Vehicle Stock Service
 
-## Project Overview
-This service manages vehicle stock data, parses vehicle subscription JSON, checks for active paid subscriptions, and safely handles optional fields. It integrates Kafka, MongoDB, Stripe, and is cloud-native deployable. Designed for enterprise use (Toyota), it supports cloud deployment via Helm/Minikube and includes full audit documentation.
+## Overview
+Vehicle Stock Service is a cloud-native, enterprise-grade Go application for managing vehicle stock data. It parses vehicle subscription JSON, checks for active paid subscriptions, and integrates with Kafka, MongoDB, and Stripe. Designed for scalable deployments, it supports Docker, Helm, and Minikube, and follows modern coding standards.
 
-## Implementation & Used Technologies
-- **Language:** Go (Golang)
-- **REST API:** Gorilla Mux
-- **Messaging:** Kafka (Confluent Cloud supported)
-- **Database:** MongoDB (Atlas supported)
-- **Payment Processor:** Stripe Go SDK (manual capture/hold)
-- **Cloud Deployment:** Docker, Helm, Minikube
-- **Testing:** Go test, Testify
-- **Code Quality:** SonarQube
-
-## How to Build & Run Locally
-1. Download dependencies:
-   ```
-   go mod tidy
-   ```
-2. Build all packages:
-   ```
-   go build ./...
-   ```
-3. Run the main service:
-   ```
-   go run main.go
-   ```
-
-## API Endpoints
-- **GET /getstock**
-  - Mandatory header parameters: `startDate`, `endDate`
-  - Returns bid/ask prices for the given dates and their difference.
-- **POST /holdpayment**
-  - Places a hold on a payment method using Stripe (manual capture).
-
-## Deployment (Minikube & Helm)
-1. Start Minikube:
-   ```
-   minikube start
-   ```
-2. Configure shell for Minikube Docker:
-   - PowerShell:
-     ```
-     minikube -p minikube docker-env --shell powershell | Invoke-Expression
-     ```
-   - Command Prompt:
-     ```
-     @FOR /f "tokens=*" %i IN ('minikube -p minikube docker-env --shell cmd') DO @%i
-     ```
-3. Build Docker image inside Minikube:
-   ```
-   docker build -t vehicle-stock-service:latest .
-   ```
-4. Install Helm chart:
-   ```
-   helm install vehicle-stock-service ./charts/vehicle-stock-service
-   ```
-5. Check deployment status:
-   ```
-   kubectl get pods
-   kubectl get services
-   ```
+## Features
+- REST API with Gorilla Mux
+- Kafka publisher/consumer for stock data (Confluent Cloud compatible)
+- MongoDB persistence (Atlas Community supported)
+- Stripe payment hold (manual capture)
+- Configurable via `config.json`, environment variables, or AWS Secrets Manager
+- Cloud-native deployment: Docker, Helm, Minikube
+- Comprehensive test coverage and SonarQube integration
 
 ## Configuration
-- See `config.yaml` for service configuration.
-- MongoDB/Kafka/Stripe credentials should be set as environment variables or in config files.
 
-## SonarQube Quality Gate
-- Ensure coverage meets your organization's requirements.
+### Local Development
+- All service configuration is in `config.json`.
+- Example:
+   ```json
+   {
+      "kafka_brokers": ["localhost:9092"],
+      "kafka_topic": "vehicle-stock",
+      "mongo_uri": "mongodb://localhost:27017",
+      "mongo_db": "vehicle_stock_db",
+      "mongo_collection": "stock_data",
+      "stripe_key": "sk_test_123"
+   }
+   ```
 
-## Full Dependency List
-- See `RESULTS.md` for a complete list of downloaded Go dependencies for audit and compliance.
+### Cloud/Production
+- Set `ENV` to any value except `local`.
+- Configuration is loaded from AWS Secrets Manager (recommended) or environment variables:
+   - `KAFKA_BROKERS`, `KAFKA_TOPIC`, `MONGO_URI`, `MONGO_DB`, `MONGO_COLLECTION`, `STRIPE_KEY`
+- AWS region is set via `AWS_REGION`.
+
+## Build & Run
+
+### Prerequisites
+- Go 1.23+
+- Docker (for containerization)
+- Helm & Minikube (for Kubernetes)
+
+### Local
+```sh
+go mod tidy
+go build ./...
+go run main.go
+```
+
+### Docker
+```sh
+docker build -t vehicle-stock-service:latest .
+docker run -p 8080:8080 vehicle-stock-service:latest
+```
+
+### Kubernetes (Minikube)
+```sh
+minikube start
+minikube -p minikube docker-env --shell powershell | Invoke-Expression
+docker build -t vehicle-stock-service:latest .
+helm install vehicle-stock-service ./charts/vehicle-stock-service
+kubectl get pods
+kubectl get services
+```
+
+## API Reference
+
+### GET `/getstock`
+- **Headers:** `startDate`, `endDate` (required)
+- **Response:**
+   - Bid/ask prices for each vehicle on the given dates
+   - Price difference
+   - Full vehicle payload
+
+### POST `/holdpayment`
+- **Body:**
+   ```json
+   {
+      "amount": 1000,
+      "currency": "usd",
+      "payment_method": "pm_xxx"
+   }
+   ```
+- **Response:** Stripe payment intent details
+
+## Cloud Integration
+
+- **Kafka:** Compatible with Confluent Cloud (set brokers in config)
+- **MongoDB:** Compatible with Atlas Community (set URI in config)
+- **Stripe:** Uses Stripe Go SDK, manual capture for payment holds
+- **AWS Secrets Manager:** Secure config loading for cloud deployments
+
+## Testing & Quality
+- Run all tests:
+   ```sh
+   go test ./...
+   ```
+- SonarQube integration for code quality (see `RESULTS.md`)
+
+## Security & Compliance
+- No hardcoded credentials
+- All secrets loaded via config file, env vars, or AWS Secrets Manager
+- See `RESULTS.md` for dependency audit
+
+## Contributing
+- Follow Go best practices and cloud-native standards
+- All code changes require tests and documentation
+
+## License
+See LICENSE file for details.

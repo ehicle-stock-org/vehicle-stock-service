@@ -55,6 +55,9 @@ func NewProducer(brokers, topic string) (*Producer, error) {
 
 // Publish sends a message to Kafka
 func (p *Producer) Publish(key string, value []byte) {
+	if p == nil || p.producer == nil {
+		return
+	}
 	msg := &kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &p.topic, Partition: kafka.PartitionAny},
 		Key:            []byte(key),
@@ -69,6 +72,9 @@ func (p *Producer) Publish(key string, value []byte) {
 
 // Close the producer
 func (p *Producer) Close() {
+	if p == nil || p.producer == nil {
+		return
+	}
 	p.producer.Flush(1000)
 	p.producer.Close()
 }

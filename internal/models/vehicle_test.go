@@ -69,8 +69,6 @@ func TestVehicleSubscriptionJSONError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// ...existing code...
-
 func TestPayloadModel(t *testing.T) {
 	subs := []VehicleSubscription{{VehicleStatus: "SUBSCRIBED", Vin: "VIN1"}, {VehicleStatus: "UNSUBSCRIBED", Vin: "VIN2"}}
 	payload := Payload{Guid: "guid123", VehicleSubscriptions: subs}
@@ -108,4 +106,36 @@ func TestVehicleSubscriptionEdgeCases(t *testing.T) {
 	err = json.Unmarshal(data, &out)
 	assert.NoError(t, err)
 	assert.Equal(t, sub, out)
+}
+
+func TestVehicleSubscriptionIsValidVIN(t *testing.T) {
+	v := VehicleSubscription{Vin: "AA450000007141513"}
+	assert.True(t, v.IsValidVIN())
+	v2 := VehicleSubscription{Vin: "SHORTVIN"}
+	assert.False(t, v2.IsValidVIN())
+}
+
+func TestStockDataFields(t *testing.T) {
+	s := StockData{Ticker: "AAPL", Bid: 150.0, Ask: 151.0, Time: "2025-08-25"}
+	assert.Equal(t, "AAPL", s.Ticker)
+	assert.Equal(t, 150.0, s.Bid)
+	assert.Equal(t, 151.0, s.Ask)
+	assert.Equal(t, "2025-08-25", s.Time)
+}
+
+func TestPayloadAndVehicleResponse(t *testing.T) {
+	vs := VehicleSubscription{Vin: "AA450000007141513", VehicleStatus: "SUBSCRIBED", ActivePaidSubscriptions: true}
+	payload := Payload{Guid: "guid123", VehicleSubscriptions: []VehicleSubscription{vs}}
+	resp := VehicleResponse{}
+	resp.Payload = payload
+	resp.Status.Messages = append(resp.Status.Messages, struct {
+		Description         string `json:"description"`
+		ResponseCode        string `json:"responseCode"`
+		DetailedDescription string `json:"detailedDescription,omitempty"`
+	}{Description: "desc", ResponseCode: "code", DetailedDescription: "details"})
+	assert.Equal(t, "guid123", resp.Payload.Guid)
+	assert.Equal(t, "AA450000007141513", resp.Payload.VehicleSubscriptions[0].Vin)
+	assert.Equal(t, "desc", resp.Status.Messages[0].Description)
+	assert.Equal(t, "code", resp.Status.Messages[0].ResponseCode)
+	assert.Equal(t, "details", resp.Status.Messages[0].DetailedDescription)
 }

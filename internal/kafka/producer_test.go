@@ -94,3 +94,59 @@ func TestProducerDeliveryReport(t *testing.T) {
 	}()
 	// No assertion needed, just coverage
 }
+
+func TestProducerDeliveryReportSuccess(t *testing.T) {
+	ch := make(chan kafka.Event, 1)
+	msg := &kafka.Message{TopicPartition: kafka.TopicPartition{Error: nil, Partition: 1}}
+	ch <- msg
+	close(ch)
+	// Simulate the delivery report goroutine
+	for e := range ch {
+		if ev, ok := e.(*kafka.Message); ok {
+			if ev.TopicPartition.Error != nil {
+				log.Printf("Delivery failed: %v", ev.TopicPartition.Error)
+			} else {
+				log.Printf("Message delivered to %v", ev.TopicPartition)
+			}
+		}
+	}
+}
+
+func TestProducerDeliveryReportError(t *testing.T) {
+	err := errors.New("delivery error")
+	ch := make(chan kafka.Event, 1)
+	msg := &kafka.Message{TopicPartition: kafka.TopicPartition{Error: err, Partition: 1}}
+	ch <- msg
+	close(ch)
+	// Simulate the delivery report goroutine
+	for e := range ch {
+		if ev, ok := e.(*kafka.Message); ok {
+			if ev.TopicPartition.Error != nil {
+				log.Printf("Delivery failed: %v", ev.TopicPartition.Error)
+			} else {
+				log.Printf("Message delivered to %v", ev.TopicPartition)
+			}
+		}
+	}
+}
+
+func TestProducerPublishNilProducer(t *testing.T) {
+	p := &Producer{producer: nil, topic: testTopic}
+	// Should not panic
+	p.Publish("key", []byte("value"))
+}
+
+func TestProducerPublishNilProducerNilValue(t *testing.T) {
+	p := &Producer{producer: nil, topic: testTopic}
+	p.Publish("key", nil)
+}
+
+func TestProducerPublishNilProducerEmptyKey(t *testing.T) {
+	p := &Producer{producer: nil, topic: testTopic}
+	p.Publish("", []byte("value"))
+}
+
+func TestProducerCloseNilProducer(t *testing.T) {
+	p := &Producer{producer: nil, topic: testTopic}
+	p.Close()
+}

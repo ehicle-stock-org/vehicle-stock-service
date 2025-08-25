@@ -78,5 +78,8 @@ func getStopChan(stopChan []chan struct{}) chan struct{} {
 
 // Close the consumer
 func (c *Consumer) Close() {
+	if c == nil || c.consumer == nil {
+		return
+	}
 	_ = c.consumer.Close()
 }

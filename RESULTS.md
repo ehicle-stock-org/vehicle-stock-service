@@ -65,16 +65,16 @@ go: downloading github.com/gorilla/mux v1.8.1
 # Test Coverage Results
 ############################################################################
 
-## Coverage Summary (as of August 24, 2025)
+## Coverage Summary (as of August 25, 2025)
 ```
-go test -cover ./...
-github.com/yourusername/vehicle-stock-service           coverage: 0.0% of statements
-ok      github.com/yourusername/vehicle-stock-service/internal/config   coverage: 100.0% of statements
-ok      github.com/yourusername/vehicle-stock-service/internal/handlers coverage: 78.8% of statements
-ok      github.com/yourusername/vehicle-stock-service/internal/kafka    coverage: 83.9% of statements
-ok      github.com/yourusername/vehicle-stock-service/internal/models   coverage: 83.9% of statements
-ok      github.com/yourusername/vehicle-stock-service/internal/mongo    coverage: 64.9% of statements
-ok      github.com/yourusername/vehicle-stock-service/internal/service  coverage: 84.4% of statements
+go test ./... -cover
+   github.com/yourusername/vehicle-stock-service           coverage: 0.0% of statements
+ok      github.com/yourusername/vehicle-stock-service/internal/config   (cached)        coverage: 92.6% of statements
+ok      github.com/yourusername/vehicle-stock-service/internal/handlers (cached)        coverage: 96.2% of statements
+ok      github.com/yourusername/vehicle-stock-service/internal/kafka    (cached)        coverage: 83.2% of statements
+ok      github.com/yourusername/vehicle-stock-service/internal/models   (cached)        coverage: 100.0% of statements
+ok      github.com/yourusername/vehicle-stock-service/internal/mongo    (cached)        coverage: 84.9% of statements
+ok      github.com/yourusername/vehicle-stock-service/internal/service  0.814s  coverage: 91.4% of statements
 ```
 ############################################################################
 # Operational & Integration Logs

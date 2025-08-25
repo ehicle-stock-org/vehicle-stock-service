@@ -44,3 +44,8 @@ type StockData struct {
 	Ask    float64 `json:"ask"`
 	Time   string  `json:"time"`
 }
+
+// Helper method: Validate VIN format (simple example)
+func (v VehicleSubscription) IsValidVIN() bool {
+	return len(v.Vin) == 17
+}

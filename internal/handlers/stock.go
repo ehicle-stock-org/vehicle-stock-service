@@ -9,6 +9,67 @@ import (
 	"github.com/yourusername/vehicle-stock-service/internal/mongo"
 )
 
+// vehiclePayloadSource returns the JSON payload for vehicles (can be mocked in tests)
+var vehiclePayloadSource = func() string {
+	return `{
+	   "status": {
+		   "messages": [
+			   {
+				   "description": "Request Processed Successfully",
+				   "responseCode": "SUB-0000",
+				   "detailedDescription": "Request Processed Successfully"
+			   }
+		   ]
+	   },
+	   "payload": {
+		   "guid": "200d617c92c9a889cdda4c31559472f",
+		   "vehicleSubscriptions": [
+			   {
+				   "vehicleStatus": "SUBSCRIBED",
+				   "generation": "24MM",
+				   "region": "US",
+				   "vin": "AA450000007141513",
+				   "isSafetyActive": true,
+				   "isServiceConnectActive": false,
+				   "isRemoteActive": false,
+				   "isDigitalKeyRemoteActive": false,
+				   "isDestinationAssistActive": false,
+				   "isNavigationActive": false,
+				   "isVirtualAssistantActive": false,
+				   "isIntegratedStreamingActive": false,
+				   "isWifiActive": false,
+				   "brand": "L",
+				   "activePaidSubscriptions": true
+			   },
+			   {
+				   "vehicleStatus": "SUBSCRIBED",
+				   "generation": "24MM",
+				   "region": "CA",
+				   "vin": "AA450000007141573",
+				   "isSafetyActive": true,
+				   "isServiceConnectActive": false,
+				   "isRemoteActive": false,
+				   "isDigitalKeyRemoteActive": false,
+				   "isDestinationAssistActive": false,
+				   "isNavigationActive": false,
+				   "isVirtualAssistantActive": false,
+				   "isIntegratedStreamingActive": false,
+				   "isWifiActive": false,
+				   "brand": "T",
+				   "activePaidSubscriptions": false
+			   },
+			   {
+				   "vehicleStatus": "SUBSCRIBED",
+				   "generation": "24MM",
+				   "region": "CA",
+				   "vin": "AA450000007141603",
+				   "isSafetyActive": true
+			   }
+		   ]
+	   }
+	}`
+}
+
 // GetStockHandler handles /getstock requests
 func GetStockHandler(w http.ResponseWriter, r *http.Request) {
 	startDate := r.Header.Get("startDate")
@@ -20,64 +81,8 @@ func GetStockHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Fetching stock data from %s to %s\n", startDate, endDate)
 
-	// Full JSON payload as per requirements
-	jsonInput := `{
-	       "status": {
-		       "messages": [
-			       {
-				       "description": "Request Processed Successfully",
-				       "responseCode": "SUB-0000",
-				       "detailedDescription": "Request Processed Successfully"
-			       }
-		       ]
-	       },
-	       "payload": {
-		       "guid": "200d617c92c9a889cdda4c31559472f",
-		       "vehicleSubscriptions": [
-			       {
-				       "vehicleStatus": "SUBSCRIBED",
-				       "generation": "24MM",
-				       "region": "US",
-				       "vin": "AA450000007141513",
-				       "isSafetyActive": true,
-				       "isServiceConnectActive": false,
-				       "isRemoteActive": false,
-				       "isDigitalKeyRemoteActive": false,
-				       "isDestinationAssistActive": false,
-				       "isNavigationActive": false,
-				       "isVirtualAssistantActive": false,
-				       "isIntegratedStreamingActive": false,
-				       "isWifiActive": false,
-				       "brand": "L",
-				       "activePaidSubscriptions": true
-			       },
-			       {
-				       "vehicleStatus": "SUBSCRIBED",
-				       "generation": "24MM",
-				       "region": "CA",
-				       "vin": "AA450000007141573",
-				       "isSafetyActive": true,
-				       "isServiceConnectActive": false,
-				       "isRemoteActive": false,
-				       "isDigitalKeyRemoteActive": false,
-				       "isDestinationAssistActive": false,
-				       "isNavigationActive": false,
-				       "isVirtualAssistantActive": false,
-				       "isIntegratedStreamingActive": false,
-				       "isWifiActive": false,
-				       "brand": "T",
-				       "activePaidSubscriptions": false
-			       },
-			       {
-				       "vehicleStatus": "SUBSCRIBED",
-				       "generation": "24MM",
-				       "region": "CA",
-				       "vin": "AA450000007141603",
-				       "isSafetyActive": true
-			       }
-		       ]
-	       }
-       }`
+	// Use the payload source (can be mocked in tests)
+	jsonInput := vehiclePayloadSource()
 
 	// Parse vehicle payload
 	var vehicleResp struct {

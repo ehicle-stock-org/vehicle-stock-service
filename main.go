@@ -14,7 +14,7 @@ import (
 
 func main() {
 	// Load configuration
-	config.LoadConfig()
+	config.LoadConfig("vehicle-stock-service")
 
 	// Connect to MongoDB
 	if _, err := mongo.ConnectMongo(config.AppConfig.MongoURI); err != nil {
